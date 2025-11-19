@@ -1,0 +1,8 @@
+model_name: google/gemma-2-2b
+dtype: bfloat16   # use float16 if bfloat16 fails
+device_map: auto
+seed: 1337
+gen:
+  max_new_tokens: 64
+  temperature: 0.0
+  top_p: 1.0

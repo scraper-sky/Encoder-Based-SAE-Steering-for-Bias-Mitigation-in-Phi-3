@@ -1,0 +1,2 @@
+model,seed,crows_anti_acc,crows_tie_rate,stereo_anti_acc,stereo_tie_rate
+microsoft/Phi-3-mini-4k-instruct,1337,0.3675,0.0,0.6038,0.0
