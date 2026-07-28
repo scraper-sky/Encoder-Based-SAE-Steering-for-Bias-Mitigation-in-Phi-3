@@ -165,7 +165,7 @@ def apply_sae_decoder_steering(h, E_t, D_t, feat_ids, alpha, tau):
 
 def apply_direct_activation_steering(h, vec, alpha):
     """Apply direct activation steering (mean-difference vector)."""
-    return h + alpha * vec.to(h.dtype)
+    return h + alpha * vec.to(device=h.device, dtype=h.dtype)
 
 
 def apply_random_steering(h, vec_shape, alpha, device):
