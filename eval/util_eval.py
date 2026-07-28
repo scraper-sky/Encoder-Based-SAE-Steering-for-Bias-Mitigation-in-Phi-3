@@ -23,8 +23,7 @@ def main():
     dtype = torch.float16 if device in ["cuda", "mps"] else torch.float32
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
     model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=dtype)
-    if device != "cuda":
-        model.to(device)
+    model.to(device)
 
     wt = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1")["test"]
     text = "\n".join(wt[i]["text"] for i in range(min(args.wiki_samples, len(wt))))

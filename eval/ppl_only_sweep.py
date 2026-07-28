@@ -34,8 +34,7 @@ def main():
 
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
     model = AutoModelForCausalLM.from_pretrained(args.model, dtype=dtype)
-    if device != "cuda":
-        model.to(device)
+    model.to(device)
     model.eval()
 
     E, D, d, delta = load_sae_data(args.scores)

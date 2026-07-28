@@ -24,7 +24,7 @@ def main():
     dtype = T.float16 if dev in ["cuda","mps"] else T.float32
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
     model = AutoModelForCausalLM.from_pretrained(args.model, dtype=dtype)
-    if dev != "cuda": model.to(dev); model.eval()
+    model.to(dev); model.eval()
 
     biased = [l.strip() for l in open(args.biased_txt) if l.strip()]
     neutral= [l.strip() for l in open(args.neutral_txt) if l.strip()]

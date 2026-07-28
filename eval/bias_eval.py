@@ -99,8 +99,7 @@ def main():
 
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
     model = AutoModelForCausalLM.from_pretrained(args.model, torch_dtype=dtype)
-    if device != "cuda":
-        model.to(device)
+    model.to(device)
 
 
     c_acc, c_tie, c_df = run_crows(model, tok, device, n=args.samples)

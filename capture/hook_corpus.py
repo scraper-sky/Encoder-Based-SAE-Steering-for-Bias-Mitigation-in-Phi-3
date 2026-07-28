@@ -21,7 +21,7 @@ def main():
 
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
     model = AutoModelForCausalLM.from_pretrained(args.model, dtype=dtype)
-    if dev != "cuda": model.to(dev); model.eval()
+    model.to(dev); model.eval()
 
     acts = []
     for spec in args.sources.split(";"):

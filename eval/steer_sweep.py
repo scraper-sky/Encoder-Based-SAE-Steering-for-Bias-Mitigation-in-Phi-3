@@ -98,7 +98,7 @@ def main():
 
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
     model = AutoModelForCausalLM.from_pretrained(args.model, dtype=dtype)
-    if device != "cuda": model.to(device)
+    model.to(device)
     model.eval()
 
     vec = build_vector(model, tok, device, args.biased_txt, args.neutral_txt, layer_index=args.layer_index)
