@@ -1,0 +1,13 @@
+{
+  "note": "Held-out CrowS-Pairs test split (n=905), Gemma-2-2B + Gemma Scope SAE (JumpReLU, layer 24/26, width 16k, avg_l0_38). Baseline vs encoder-SAE steering (alpha=2.0, tau=0.0, topk=32).",
+  "baseline_crows_test_acc": 0.3635,
+  "encoder_sae_crows_test_acc": 0.4110,
+  "decoder_ablation_crows_test_acc": 0.3845,
+  "direct_activation_crows_test_acc": 0.3635,
+  "stereoset_test": {"baseline": 0.6495, "encoder_sae": 0.6448, "decoder_ablation": 0.6511, "direct": 0.6495},
+  "unpaired_two_proportion_ztest": {"z": 2.075, "p_one_tailed": 0.019},
+  "mcnemar_2x2": {"both_win": 304, "baseline_only_win": 25, "encoder_only_win": 68, "both_lose": 508},
+  "mcnemar_exact_one_tailed_p": 4.6878e-06,
+  "mcnemar_continuity_corrected_chi2": 18.968,
+  "conclusion": "Encoder-SAE steering beats decoder ablation and direct-activation steering on genuinely held-out data using an independently-trained SAE (Gemma Scope, JumpReLU) on a second model family. Effect is significant under both the unpaired z-test (unlike Phi-3, which needed the paired correction) and the paired McNemar test, at a much smaller p-value than Phi-3's replication."
+}
