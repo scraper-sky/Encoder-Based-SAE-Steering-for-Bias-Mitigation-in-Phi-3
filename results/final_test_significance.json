@@ -1,0 +1,15 @@
+{
+  "note": "Held-out CrowS-Pairs test split (n=905), baseline vs encoder-SAE steering (alpha=2.0, tau=0.0, topk=32).",
+  "baseline_crows_test_acc": 0.3746,
+  "encoder_sae_crows_test_acc": 0.4099,
+  "unpaired_two_proportion_ztest": {
+    "z": 1.541,
+    "p_one_tailed": 0.0617,
+    "note": "Treats baseline and steered accuracy as independent samples; incorrect for this design since both conditions score the same 905 items."
+  },
+  "mcnemar_2x2": {"both_win": 283, "baseline_only_win": 56, "encoder_only_win": 88, "both_lose": 478},
+  "mcnemar_exact_one_tailed_p": 0.0048,
+  "mcnemar_continuity_corrected_chi2": 6.674,
+  "mcnemar_continuity_corrected_two_tailed_p": 0.0098,
+  "conclusion": "Paired McNemar test (methodologically correct for this same-item, two-condition design) shows the encoder-SAE steering improvement is statistically significant on genuinely held-out data, despite the underpowered unpaired z-test landing just above p=0.05."
+}
