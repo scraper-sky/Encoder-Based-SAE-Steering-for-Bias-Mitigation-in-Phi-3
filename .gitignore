@@ -7,3 +7,4 @@ results/sae_feature_scores_dev.npy
 results/gemma_sae_feature_scores_dev.npy
 __pycache__/
 *.pyc
+results/gemma_smoke_test.npy
