@@ -97,15 +97,20 @@ def main():
     
     def apply_sae_transform(h):
         """Apply SAE transformation to hidden states h [B,S,H]"""
+        # E_t is float32; h may be float16, and einsum requires matching
+        # dtypes (strict on CUDA, silently tolerated on MPS) -- do the math
+        # in float32 and cast back.
+        orig_dtype = h.dtype
+        h32 = h.float()
         # SAE encoder: ReLU(h @ E^T)
-        z = T.relu(T.einsum("bsh,fh->bsf", h, E_t))  # [B,S,F]
+        z = T.relu(T.einsum("bsh,fh->bsf", h32, E_t))  # [B,S,F]
         z_sel = z[..., feat_ids]                      # [B,S,K] - activations of selected features
         # gate selected features above tau
-        mask = (z_sel > args.tau).to(h.dtype)  # [B,S,K]
+        mask = (z_sel > args.tau).float()  # [B,S,K]
         # subtract alpha * (activation * encoder_direction) for active feats
         # This removes the component of h that aligns with bias feature directions
         contrib = T.einsum("bsk,kh->bsh", mask * z_sel * (-args.alpha), Esel)
-        return h + contrib
+        return (h32 + contrib).to(orig_dtype)
     
     # Find the transformer layer to hook into
     # Most models have: model.model.layers (Phi-3, Gemma, etc.) or model.transformer.h (GPT-2 style)

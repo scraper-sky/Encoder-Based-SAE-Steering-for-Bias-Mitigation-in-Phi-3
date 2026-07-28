@@ -25,9 +25,9 @@ def build_vector(model, tok, dev, biased_txt, neutral_txt, layer_index=-2):
     return v / (v.norm() + 1e-8)
 
 def apply_steering_hook(model, vec, alpha):
-    v = vec.to(next(model.parameters()).device)
     def pre_hook(_mod, inputs):
         h = inputs[0]               # [B,S,H]
+        v = vec.to(device=h.device, dtype=h.dtype)
         return (h + alpha * v,)     # add before lm_head
     return model.lm_head.register_forward_pre_hook(pre_hook)
 

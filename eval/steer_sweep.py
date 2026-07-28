@@ -76,9 +76,9 @@ def build_vector(model, tok, device, biased_txt, neutral_txt, layer_index=-2):
 
 def apply_steering_hook(model, vec, alpha, layer_index=-2):
     # Add α·v right before lm_head projection (guaranteed to affect logits)
-    v = vec.to(next(model.parameters()).device)
     def pre_hook(_mod, inputs):
         h = inputs[0]              # [B, S, H]
+        v = vec.to(device=h.device, dtype=h.dtype)
         return (h + alpha * v,)    # same shape
     return model.lm_head.register_forward_pre_hook(pre_hook)
 

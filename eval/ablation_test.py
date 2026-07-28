@@ -114,49 +114,58 @@ def select_features_by_criterion(d, delta, topk=32, criterion="cohens_d", requir
 
 def apply_sae_encoder_steering(h, E_t, feat_ids, alpha, tau):
     """Apply SAE encoder direction steering."""
+    # E_t is always float32; h may be float16 (CUDA/MPS autocast-free fp16 models).
+    # einsum requires matching dtypes (strictly enforced on CUDA, silently
+    # tolerated on MPS), so do the math in float32 and cast back at the end.
+    orig_dtype = h.dtype
+    h32 = h.float()
+
     # Compute activations
-    z = T.relu(T.einsum("bsh,fh->bsf", h, E_t))  # [B,S,F]
+    z = T.relu(T.einsum("bsh,fh->bsf", h32, E_t))  # [B,S,F]
     z_sel = z[..., feat_ids]  # [B,S,K]
-    
+
     # Gate by threshold
     if tau > 0:
-        mask = (z_sel > tau).to(h.dtype)  # [B,S,K]
+        mask = (z_sel > tau).float()  # [B,S,K]
     else:
-        mask = (z_sel > 0).to(h.dtype)  # Always active if above 0
-    
+        mask = (z_sel > 0).float()  # Always active if above 0
+
     # Get encoder directions for selected features
     Esel = E_t[feat_ids, :]  # [K,H]
-    
+
     # Subtract alpha * (activation * encoder_direction) for active features
     contrib = T.einsum("bsk,kh->bsh", mask * z_sel * (-alpha), Esel)
-    return h + contrib
+    return (h32 + contrib).to(orig_dtype)
 
 
 def apply_sae_decoder_steering(h, E_t, D_t, feat_ids, alpha, tau):
     """Apply SAE decoder direction steering (alternative method).
-    
+
     Uses decoder columns D[:, k] instead of encoder rows E[k, :] for steering.
     Still needs E to compute activations z.
     """
+    orig_dtype = h.dtype
+    h32 = h.float()
+
     # Compute activations using encoder
-    z = T.relu(T.einsum("bsh,fh->bsf", h, E_t))  # [B,S,F]
+    z = T.relu(T.einsum("bsh,fh->bsf", h32, E_t))  # [B,S,F]
     z_sel = z[..., feat_ids]  # [B,S,K]
-    
+
     if tau > 0:
-        mask = (z_sel > tau).to(h.dtype)
+        mask = (z_sel > tau).float()
     else:
-        mask = (z_sel > 0).to(h.dtype)
-    
+        mask = (z_sel > 0).float()
+
     # Use decoder columns for steering (instead of encoder rows)
     Dsel = D_t[:, feat_ids]  # [H,K] - decoder columns for selected features
     # Subtract alpha * (activation * decoder_column) for active features
     contrib = T.einsum("bsk,hk->bsh", mask * z_sel * (-alpha), Dsel)
-    return h + contrib
+    return (h32 + contrib).to(orig_dtype)
 
 
 def apply_direct_activation_steering(h, vec, alpha):
     """Apply direct activation steering (mean-difference vector)."""
-    return h + alpha * vec
+    return h + alpha * vec.to(h.dtype)
 
 
 def apply_random_steering(h, vec_shape, alpha, device):
