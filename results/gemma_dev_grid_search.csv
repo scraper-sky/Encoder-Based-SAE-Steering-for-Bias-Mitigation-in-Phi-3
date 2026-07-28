@@ -1,0 +1,8 @@
+method,alpha,tau,topk,crows_dev_acc,stereo_dev_acc
+baseline,0.0,,,0.3466,0.6461
+sae_encoder,0.5,0.05,32,0.3549,0.6532
+sae_encoder,1.0,0.05,32,0.3798,0.6473
+sae_encoder,1.5,0.05,32,0.3964,0.6580
+sae_encoder,2.0,0.0,32,0.4046,0.6532
+sae_encoder,2.5,0.0,32,0.4378,0.6461
+sae_encoder,3.0,0.0,32,0.4710,0.6485
