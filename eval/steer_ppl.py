@@ -34,7 +34,7 @@ def apply_steering_hook(model, vec, alpha):
 # ----- perplexity on WikiText-2 (test), token-capped for speed -----
 
 def calc_ppl(model, tok, dev, max_tokens=50000):
-    ds = load_dataset("wikitext", "wikitext-2-raw-v1")["test"]
+    ds = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1")["test"]
     text = "\n\n".join([ex["text"] for ex in ds if ex["text"].strip()])
     enc = tok(text, return_tensors="pt", add_special_tokens=False)
     input_ids = enc["input_ids"][0]  # [T]

@@ -26,7 +26,7 @@ def main():
     if device != "cuda":
         model.to(device)
 
-    wt = load_dataset("wikitext", "wikitext-2-raw-v1")["test"]
+    wt = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1")["test"]
     text = "\n".join(wt[i]["text"] for i in range(min(args.wiki_samples, len(wt))))
     ppl = ppl_on_text(model, tok, device, text)
     pd.DataFrame([{"model": args.model, "ppl_wikitext2": round(ppl,3)}]).to_csv(args.out, index=False)

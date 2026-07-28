@@ -27,7 +27,7 @@ def main():
     for spec in args.sources.split(";"):
         name, split_count = spec.split(":")
         split, count = split_count.split(",")
-        ds = load_dataset("wikitext", name)[split]
+        ds = load_dataset("Salesforce/wikitext", name)[split]
         n = min(int(count), len(ds))
         for i in range(n):
             txt = ds[i]["text"].strip()

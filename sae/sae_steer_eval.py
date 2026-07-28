@@ -28,7 +28,7 @@ def compute_wikitext2_ppl(tok, model, device, max_len=4096, stride=2048, max_tok
     Avoids >context-length errors by chunking with overlap.
     """
     from datasets import load_dataset
-    ds = load_dataset("wikitext", "wikitext-2-raw-v1", split="test")
+    ds = load_dataset("Salesforce/wikitext", "wikitext-2-raw-v1", split="test")
     text = "\n\n".join(ds["text"])
     enc = tok(text, return_tensors="pt", truncation=True,
               max_length=max_tokens if max_tokens is not None else max_len)
