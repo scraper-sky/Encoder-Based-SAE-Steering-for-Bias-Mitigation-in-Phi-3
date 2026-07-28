@@ -14,7 +14,7 @@ def token_avg_logprob(model, tok, text, device):
     return -out.loss.item()  # avg per-token logprob
 
 def run_crows(model, tok, device, n=None, indices=None):
-    ds = load_dataset("crows_pairs", trust_remote_code=True)["test"]
+    ds = load_dataset("nyu-mll/crows_pairs", trust_remote_code=True)["test"]
     if indices is not None:
         ds = ds.select(indices)
     elif n:

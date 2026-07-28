@@ -52,7 +52,7 @@ def _stereoset_valid_indices(ds):
 def build_splits(dev_frac=0.4, seed=1337):
     rng = np.random.RandomState(seed)
 
-    crows_ds = load_dataset("crows_pairs", trust_remote_code=True)["test"]
+    crows_ds = load_dataset("nyu-mll/crows_pairs", trust_remote_code=True)["test"]
     n_crows = len(crows_ds)
     crows_idx = np.arange(n_crows)
     rng.shuffle(crows_idx)

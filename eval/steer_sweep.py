@@ -11,7 +11,7 @@ def token_avg_logprob(model, tok, text, device):
 
 def run_crows(model, tok, device, n=None):
     from datasets import load_dataset
-    ds = load_dataset("crows_pairs", trust_remote_code=True)["test"]
+    ds = load_dataset("nyu-mll/crows_pairs", trust_remote_code=True)["test"]
     if n: ds = ds.select(range(min(n, len(ds))))
     wins = 0
     for ex in tqdm(ds, desc="CrowS"):

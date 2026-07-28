@@ -25,7 +25,7 @@ def main():
 
     # Extract from CrowS
     print("Loading CrowS...")
-    crows_ds = load_dataset("crows_pairs", trust_remote_code=True)["test"]
+    crows_ds = load_dataset("nyu-mll/crows_pairs", trust_remote_code=True)["test"]
     if splits is not None:
         crows_examples = crows_ds.select(splits["crows"][args.split])
     else:
