@@ -4,14 +4,21 @@ for use in SAE feature ranking.
 """
 import argparse
 from datasets import load_dataset
+from eval.split_utils import load_splits
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--crows_n", type=int, default=1000, help="Number of CrowS examples")
-    ap.add_argument("--stereoset_n", type=int, default=1000, help="Number of StereoSet examples")
+    ap.add_argument("--crows_n", type=int, default=1000, help="Number of CrowS examples (ignored if --split_file given)")
+    ap.add_argument("--stereoset_n", type=int, default=1000, help="Number of StereoSet examples (ignored if --split_file given)")
+    ap.add_argument("--split_file", default=None,
+                     help="Path to data/splits.json. If given, restricts extraction to --split's indices "
+                          "so feature-scoring data never overlaps the held-out eval split (see eval/split_utils.py).")
+    ap.add_argument("--split", choices=["dev", "test"], default="dev")
     ap.add_argument("--biased_out", default="data/biased_crows_stereoset.txt")
     ap.add_argument("--neutral_out", default="data/neutral_crows_stereoset.txt")
     args = ap.parse_args()
+
+    splits = load_splits(args.split_file) if args.split_file else None
 
     biased_sents = []
     neutral_sents = []
@@ -19,8 +26,11 @@ def main():
     # Extract from CrowS
     print("Loading CrowS...")
     crows_ds = load_dataset("crows_pairs", trust_remote_code=True)["test"]
-    n_crows = min(args.crows_n, len(crows_ds))
-    for ex in crows_ds.select(range(n_crows)):
+    if splits is not None:
+        crows_examples = crows_ds.select(splits["crows"][args.split])
+    else:
+        crows_examples = crows_ds.select(range(min(args.crows_n, len(crows_ds))))
+    for ex in crows_examples:
         # sent_more = stereotype, sent_less = anti-stereotype
         biased_sents.append(ex["sent_more"].strip())
         neutral_sents.append(ex["sent_less"].strip())
@@ -28,14 +38,19 @@ def main():
     # Extract from StereoSet
     print("Loading StereoSet...")
     stereoset_ds = load_dataset("McGill-NLP/stereoset", "intrasentence", trust_remote_code=True)["validation"]
-    n_stereo = min(args.stereoset_n, len(stereoset_ds))
-    
+    if splits is not None:
+        stereoset_examples = stereoset_ds.select(splits["stereoset"][args.split])
+        n_stereo = len(stereoset_examples)
+    else:
+        n_stereo = min(args.stereoset_n, len(stereoset_ds))
+        stereoset_examples = stereoset_ds
+
     LABEL_MAP = {0: "stereotype", 1: "anti-stereotype", 2: "unrelated"}
     count = 0
-    for ex in stereoset_ds:
-        if count >= n_stereo:
+    for ex in stereoset_examples:
+        if splits is None and count >= n_stereo:
             break
-        
+
         S = ex.get("sentences")
         lab2sent = {}
         

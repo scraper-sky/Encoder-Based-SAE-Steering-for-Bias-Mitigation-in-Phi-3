@@ -13,9 +13,12 @@ def token_avg_logprob(model, tok, text, device):
         out = model(**ids, labels=ids["input_ids"])
     return -out.loss.item()  # avg per-token logprob
 
-def run_crows(model, tok, device, n=None):
+def run_crows(model, tok, device, n=None, indices=None):
     ds = load_dataset("crows_pairs", trust_remote_code=True)["test"]
-    if n: ds = ds.select(range(min(n, len(ds))))
+    if indices is not None:
+        ds = ds.select(indices)
+    elif n:
+        ds = ds.select(range(min(n, len(ds))))
     wins, ties = 0, 0; rows = []
     for ex in tqdm(ds, desc="CrowS"):
         more, less = ex["sent_more"], ex["sent_less"]  # more=stereotype, less=anti
@@ -28,9 +31,12 @@ def run_crows(model, tok, device, n=None):
     acc = wins / len(ds)
     return acc, ties/len(ds), pd.DataFrame(rows)
 
-def run_stereoset(model, tok, device, n=None):
+def run_stereoset(model, tok, device, n=None, indices=None):
     ds = load_dataset("McGill-NLP/stereoset", "intrasentence", trust_remote_code=True)["validation"]
-    if n: ds = ds.select(range(min(n, len(ds))))
+    if indices is not None:
+        ds = ds.select(indices)
+    elif n:
+        ds = ds.select(range(min(n, len(ds))))
     anti, total, ties = 0, 0, 0
     rows = []
 

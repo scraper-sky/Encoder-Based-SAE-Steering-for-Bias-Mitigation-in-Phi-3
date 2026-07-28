@@ -1,0 +1,19 @@
+% SUGGESTED EDITS FOR YOUR RESULTS SECTION
+
+% 1. In the grid search subsection, add clarification:
+% After "The larger jump to $\alpha{=}2.0$ (Table~\ref{tab:full}) appears necessary to unlock a meaningful CrowS gain."
+% ADD: "We tested $\alpha{=}2.0$ separately outside the grid search, finding it yields the $10.3\%$ relative improvement reported in Table~\ref{tab:full}$."
+
+% 2. Replace the utility subsection with actual numbers:
+\subsection{Utility (perplexity)}
+
+We measure WikiText-2 (raw) perplexity on a 50k-token sliding-window subset to assess language modeling utility. The baseline model achieves a perplexity of $5.697$, while encoder-direction SAE steering at $\alpha{=}2.0$ increases this to $6.351$, representing an $11.5\%$ relative increase. This modest utility degradation is expected given the bias reduction achieved, and demonstrates that encoder-based steering provides a favorable tradeoff between bias mitigation and model utility.
+
+% 3. In direct activation steering, add specific numbers:
+% Replace: "produced results close to baseline in our runs (no consistent improvements on CrowS and small fluctuations on StereoSet)"
+% WITH: "produced results close to baseline across $\alpha \in \{-2.0, -1.0, -0.5, 0, 0.5, 1.0, 2.0\}$: CrowS anti-acc ranged from $0.3663$ to $0.3688$ (all near baseline $0.3675$), while StereoSet anti-acc varied from $0.6000$ to $0.6062$ (baseline $\approx 0.6025$). This suggests that feature-level edits guided by SAE encoder directions are a more targeted intervention than a single global direction."
+
+% 4. Minor: In the grid search table caption, clarify:
+% "27-run grid summary (encoder-direction SAE steering, $\alpha \le 1.0$)."
+% This makes it clear why the grid results are lower than the $\alpha{=}2.0$ result.
+

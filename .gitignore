@@ -3,3 +3,7 @@ cache/
 data/
 results/sae_feature_scores_crows_stereoset.npy
 results/sae_feature_scores.npy
+results/sae_feature_scores_dev.npy
+results/gemma_sae_feature_scores_dev.npy
+__pycache__/
+*.pyc
