@@ -1,0 +1,10 @@
+{
+  "sae_encoder": {
+    "alpha": 2.0,
+    "tau": 0.0,
+    "topk": 32
+  },
+  "direct": {
+    "alpha": 0.0
+  }
+}
