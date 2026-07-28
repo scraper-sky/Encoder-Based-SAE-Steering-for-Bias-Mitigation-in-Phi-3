@@ -26,6 +26,11 @@ def main():
     ap.add_argument("--tau", type=float, default=0.0)
     ap.add_argument("--alphas", type=float, nargs="+", default=[0.5, 1.0, 1.5, 2.0, 2.5, 3.0])
     ap.add_argument("--ppl_max_tokens", type=int, default=20000)
+    ap.add_argument("--ppl_max_len", type=int, default=4096,
+                     help="context window per forward pass for the PPL sliding window. "
+                          "Lower this for large-vocab models (e.g. Gemma-2's 256k vocab) to avoid "
+                          "CUDA OOM from the [seq_len, vocab_size] logits tensor in the loss computation.")
+    ap.add_argument("--ppl_stride", type=int, default=2048)
     ap.add_argument("--out", default="results/alpha_ppl_full.csv")
     args = ap.parse_args()
 
@@ -41,7 +46,7 @@ def main():
     feat_ids = select_features_by_criterion(d, delta, topk=args.topk, criterion="cohens_d")
     E_t = T.tensor(E, dtype=T.float32, device=device)
 
-    baseline_ppl = compute_wikitext2_ppl(tok, model, device, max_len=4096, stride=2048, max_tokens=args.ppl_max_tokens)
+    baseline_ppl = compute_wikitext2_ppl(tok, model, device, max_len=args.ppl_max_len, stride=args.ppl_stride, max_tokens=args.ppl_max_tokens)
     print({"alpha": 0.0, "ppl_wikitext2": round(baseline_ppl, 3)})
     rows = [{"alpha": 0.0, "ppl_wikitext2": round(baseline_ppl, 3), "ppl_rel_increase": 0.0}]
 
@@ -49,7 +54,7 @@ def main():
         steering_fn = lambda h: apply_sae_encoder_steering(h, E_t, feat_ids, alpha, args.tau)
         handle = register_steering_hook(model, steering_fn, [], args.layer_index)
         try:
-            ppl = compute_wikitext2_ppl(tok, model, device, max_len=4096, stride=2048, max_tokens=args.ppl_max_tokens)
+            ppl = compute_wikitext2_ppl(tok, model, device, max_len=args.ppl_max_len, stride=args.ppl_stride, max_tokens=args.ppl_max_tokens)
         finally:
             handle.remove()
         rel_increase = ppl / baseline_ppl - 1
