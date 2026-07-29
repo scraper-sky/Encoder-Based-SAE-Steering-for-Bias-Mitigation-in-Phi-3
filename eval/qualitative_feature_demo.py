@@ -47,6 +47,11 @@ def main():
     ap.add_argument("--scores", default="results/sae_feature_scores_dev.npy")
     ap.add_argument("--layer_index", type=int, default=-2)
     ap.add_argument("--topn_features", type=int, default=4)
+    ap.add_argument("--feature_ids", type=int, nargs="+", default=None,
+                     help="inspect these specific feature IDs instead of the top-N by Cohen's d "
+                          "(e.g. to check what a per-example causally-dominant feature from "
+                          "feature_ablation_walkthrough.py actually fires on)")
+    ap.add_argument("--skip_part2", action="store_true", help="skip the flip-search (Part 2), just run Part 1")
     ap.add_argument("--corpus_txt", nargs="+",
                      default=["data/biased_crows_stereoset_dev.txt", "data/neutral_crows_stereoset_dev.txt"])
     ap.add_argument("--corpus_limit", type=int, default=300)
@@ -66,7 +71,8 @@ def main():
     model.eval()
 
     E, D, d, delta = load_sae_data(args.scores)
-    top_feat_ids = select_features_by_criterion(d, delta, topk=args.topn_features, criterion="cohens_d")
+    top_feat_ids = args.feature_ids if args.feature_ids is not None else \
+        select_features_by_criterion(d, delta, topk=args.topn_features, criterion="cohens_d")
     E_cpu = T.tensor(E, dtype=T.float32)  # for part 1 (CPU-side per-token scan)
     E_t = T.tensor(E, dtype=T.float32, device=device)  # for part 2 (steering hook)
 
@@ -95,6 +101,9 @@ def main():
         for val, sent, token in hits:
             print(f"  act={val:.3f} | token='{token}' | \"{sent}\"")
         print()
+
+    if args.skip_part2:
+        return
 
     print("\n=== Part 2: Concrete steering-flip examples (CrowS-Pairs, held-out test) ===\n")
 
