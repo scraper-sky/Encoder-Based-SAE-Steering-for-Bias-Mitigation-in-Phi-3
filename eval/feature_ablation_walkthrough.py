@@ -56,13 +56,21 @@ def score_pair(model, tok, device, more, less):
 def top_activating_feature(model, tok, device, text, E_t, feat_ids, layer_index):
     """Which of the top-K features fires hardest on this sentence -- used
     to pick a per-example target feature instead of assuming one feature
-    (e.g. a Mexican-detector) is relevant to every example."""
+    (e.g. a Mexican-detector) is relevant to every example.
+
+    Excludes position 0 (BOS): in a causal LM the BOS token's hidden state
+    is content-independent (it cannot attend to anything), so a feature
+    that fires hard on BOS regardless of sentence content will dominate a
+    naive max-over-sequence search for every input. Confirmed empirically:
+    one feature showed identical activation on two unrelated sentences,
+    traced to position 0 specifically.
+    """
     ids = tok(text, return_tensors="pt").to(device)
     with T.no_grad():
         hs = model(**ids, output_hidden_states=True, use_cache=False).hidden_states[layer_index]
-    h = hs[0].float()  # [seq, H]
+    h = hs[0].float()[1:]  # [seq-1, H] -- drop BOS position
     Esel = E_t[feat_ids, :]  # [K, H]
-    z_sel = T.relu(h @ Esel.T)  # [seq, K]
+    z_sel = T.relu(h @ Esel.T)  # [seq-1, K]
     max_per_feat = z_sel.max(dim=0).values  # [K]
     best_local = int(max_per_feat.argmax())
     return feat_ids[best_local], float(max_per_feat[best_local])

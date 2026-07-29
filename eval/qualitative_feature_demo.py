@@ -33,7 +33,12 @@ def get_per_token_hidden(model, tok, device, text, layer_index=-2, max_tokens=64
     with T.no_grad():
         hs = model(**ids, output_hidden_states=True, use_cache=False).hidden_states[layer_index]
     tokens = tok.convert_ids_to_tokens(ids["input_ids"][0])
-    return tokens, hs[0].float().cpu()  # [seq, H]
+    # Drop position 0 (BOS): in a causal LM its hidden state is content-independent
+    # (can't attend to anything), so a feature that fires hard on BOS regardless of
+    # sentence content would look like a max-activating "hit" for every example.
+    # Confirmed empirically in eval/feature_ablation_walkthrough.py (one feature
+    # showed identical activation on two unrelated sentences, traced to position 0).
+    return tokens[1:], hs[0, 1:].float().cpu()  # [seq-1, H]
 
 
 def main():
